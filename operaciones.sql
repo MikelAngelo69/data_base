@@ -274,3 +274,232 @@ JOIN fabricante ON producto.codigo_fabricante = fabricante.codigo
 WHERE producto.precio >= 180
 ORDER BY producto.precio DESC, producto.nombre ASC;
 
+-- 13
+SELECT DISTINCT f.codigo, f.nombre
+FROM fabricante f
+JOIN producto p ON f.codigo = p.codigo_fabricante;
+
+-- 1.1.5 
+-- 1
+SELECT 
+  f.codigo AS id_fabricante,
+  f.nombre AS nombre_fabricante,
+  p.codigo AS id_producto,
+  p.nombre AS nombre_producto,
+  p.precio
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante;
+
+-- 2 
+SELECT 
+  f.codigo AS id_fabricante,
+  f.nombre AS nombre_fabricante
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+WHERE p.codigo IS NULL;
+
+-- 3 No, no pueden existir productos sin fabricante porque la base de datos está diseñada para que cada producto tenga que estar relacionado con un fabricante. 
+-- Si intentas agregar un producto sin fabricante, la base de datos no lo permitirá.
+
+-- 1.1.6 
+-- 1
+SELECT COUNT(*) AS total_productos
+FROM producto;
+
+-- 2 
+SELECT COUNT(*) AS total_fabricantes
+FROM fabricante;
+
+-- 3
+SELECT COUNT(DISTINCT codigo_fabricante) AS total_fabricantes_distintos
+FROM producto;
+
+-- 4
+SELECT AVG(precio) AS media_precio
+FROM producto;
+
+-- 5
+SELECT MIN(precio) AS precio_mas_barato
+FROM producto;
+
+-- 6 
+SELECT MAX(precio) AS precio_mas_caro
+FROM producto;
+
+-- 7
+SELECT nombre, precio
+FROM producto
+ORDER BY precio ASC
+LIMIT 1;
+
+-- 8 
+SELECT nombre, precio
+FROM producto
+ORDER BY precio DESC
+LIMIT 1;
+
+-- 9 
+SELECT SUM(precio) AS suma_precios
+FROM producto;
+
+-- 10
+SELECT COUNT(*) AS total_productos_asus
+FROM producto
+WHERE codigo_fabricante = (SELECT codigo FROM fabricante WHERE nombre = 'Asus');
+
+-- 11
+SELECT AVG(precio) AS media_precio_asus
+FROM producto
+WHERE codigo_fabricante = (SELECT codigo FROM fabricante WHERE nombre = 'Asus');
+
+-- 12
+SELECT MIN(precio) AS precio_mas_barato_asus
+FROM producto
+WHERE codigo_fabricante = (SELECT codigo FROM fabricante WHERE nombre = 'Asus');
+
+-- 13
+SELECT MAX(precio) AS precio_mas_caro_asus
+FROM producto
+WHERE codigo_fabricante = (SELECT codigo FROM fabricante WHERE nombre = 'Asus');
+
+-- 14
+SELECT SUM(precio) AS suma_precios_asus
+FROM producto
+WHERE codigo_fabricante = (SELECT codigo FROM fabricante WHERE nombre = 'Asus');
+
+-- 15
+SELECT 
+  MAX(precio) AS precio_maximo,
+  MIN(precio) AS precio_minimo,
+  AVG(precio) AS precio_medio,
+  COUNT(*) AS total_productos
+FROM producto
+WHERE codigo_fabricante = (SELECT codigo FROM fabricante WHERE nombre = 'Crucial');
+
+-- 16
+SELECT 
+  f.nombre AS nombre_fabricante,
+  COUNT(p.codigo) AS total_productos
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo
+ORDER BY total_productos DESC;
+
+-- 17 
+SELECT 
+  f.nombre AS nombre_fabricante,
+  MAX(p.precio) AS precio_maximo,
+  MIN(p.precio) AS precio_minimo,
+  AVG(p.precio) AS precio_medio
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo;
+
+-- 18
+SELECT 
+  f.codigo AS id_fabricante,
+  MAX(p.precio) AS precio_maximo,
+  MIN(p.precio) AS precio_minimo,
+  AVG(p.precio) AS precio_medio,
+  COUNT(p.codigo) AS total_productos
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo
+HAVING AVG(p.precio) > 200;
+
+-- 19
+SELECT 
+  f.nombre AS nombre_fabricante,
+  MAX(p.precio) AS precio_maximo,
+  MIN(p.precio) AS precio_minimo,
+  AVG(p.precio) AS precio_medio,
+  COUNT(p.codigo) AS total_productos
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo
+HAVING AVG(p.precio) > 200;
+
+-- 20
+SELECT COUNT(*) AS total_productos_mayor_180
+FROM producto
+WHERE precio >= 180;
+
+-- 21
+SELECT 
+  f.nombre AS nombre_fabricante,
+  COUNT(p.codigo) AS total_productos_mayor_180
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+WHERE p.precio >= 180
+GROUP BY f.codigo;
+
+-- 22 
+SELECT 
+  f.codigo AS id_fabricante,
+  AVG(p.precio) AS precio_medio
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo;
+
+-- 23
+SELECT 
+  f.nombre AS nombre_fabricante,
+  AVG(p.precio) AS precio_medio
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo;
+
+-- 24 
+SELECT 
+  f.nombre AS nombre_fabricante
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo
+HAVING AVG(p.precio) >= 150;
+
+-- 25
+SELECT 
+  f.nombre AS nombre_fabricante
+FROM fabricante f
+JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo
+HAVING COUNT(p.codigo) >= 2;
+
+-- 26
+SELECT 
+  f.nombre AS nombre_fabricante,
+  COUNT(p.codigo) AS total_productos
+FROM fabricante f
+JOIN producto p ON f.codigo = p.codigo_fabricante
+WHERE p.precio >= 220
+GROUP BY f.codigo;
+
+-- 27
+SELECT 
+  f.nombre AS nombre_fabricante,
+  COALESCE(COUNT(p.codigo), 0) AS total_productos
+FROM fabricante f
+LEFT JOIN producto p ON f.codigo = p.codigo_fabricante AND p.precio >= 220
+GROUP BY f.codigo;
+
+-- 28
+SELECT 
+  f.nombre AS nombre_fabricante
+FROM fabricante f
+JOIN producto p ON f.codigo = p.codigo_fabricante
+GROUP BY f.codigo
+HAVING SUM(p.precio) > 1000;
+
+-- 29
+SELECT 
+  p.nombre AS nombre_producto,
+  p.precio,
+  f.nombre AS nombre_fabricante
+FROM producto p
+JOIN fabricante f ON p.codigo_fabricante = f.codigo
+WHERE p.precio = (
+  SELECT MAX(precio)
+  FROM producto
+  WHERE codigo_fabricante = f.codigo
+)
+ORDER BY f.nombre ASC;
