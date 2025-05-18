@@ -503,3 +503,123 @@ WHERE p.precio = (
   WHERE codigo_fabricante = f.codigo
 )
 ORDER BY f.nombre ASC;
+
+
+-- 1.1.7.1
+SELECT * FROM producto WHERE fabricante_id = (
+  SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+);
+
+SELECT * FROM producto WHERE precio = (
+  SELECT MAX(precio) FROM producto WHERE fabricante_id = (
+    SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+  )
+);
+
+SELECT nombre FROM producto WHERE precio = (
+  SELECT MAX(precio) FROM producto WHERE fabricante_id = (
+    SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+  )
+) AND fabricante_id = (
+  SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+);
+
+SELECT nombre FROM producto WHERE precio = (
+  SELECT MIN(precio) FROM producto WHERE fabricante_id = (
+    SELECT id FROM fabricante WHERE nombre = 'Hewlett-Packard'
+  )
+) AND fabricante_id = (
+  SELECT id FROM fabricante WHERE nombre = 'Hewlett-Packard'
+);
+
+SELECT * FROM producto WHERE precio >= (
+  SELECT MAX(precio) FROM producto WHERE fabricante_id = (
+    SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+  )
+);
+
+SELECT * FROM producto WHERE fabricante_id = (
+  SELECT id FROM fabricante WHERE nombre = 'Asus'
+) AND precio > (
+  SELECT AVG(precio) FROM producto WHERE fabricante_id = (
+    SELECT id FROM fabricante WHERE nombre = 'Asus'
+  )
+);
+
+-- 1.1.7.2
+SELECT * FROM producto p1
+WHERE precio >= ALL (
+  SELECT precio FROM producto
+);
+
+SELECT * FROM producto p1
+WHERE precio <= ALL (
+  SELECT precio FROM producto
+);
+
+SELECT nombre FROM fabricante
+WHERE id = ANY (
+  SELECT fabricante_id FROM producto
+);
+
+SELECT nombre FROM fabricante
+WHERE id <> ALL (
+  SELECT fabricante_id FROM producto
+);
+
+-- 1.1.7.3
+SELECT nombre FROM fabricante
+WHERE id IN (
+  SELECT fabricante_id FROM producto
+);
+
+SELECT nombre FROM fabricante
+WHERE id NOT IN (
+  SELECT fabricante_id FROM producto
+);
+
+-- 1.1.7.4
+SELECT nombre FROM fabricante f
+WHERE EXISTS (
+  SELECT 1 FROM producto p WHERE p.fabricante_id = f.id
+);
+
+SELECT nombre FROM fabricante f
+WHERE NOT EXISTS (
+  SELECT 1 FROM producto p WHERE p.fabricante_id = f.id
+);
+
+-- 1.1.7.5
+SELECT f.nombre AS fabricante, p.nombre AS producto, p.precio
+FROM fabricante f
+JOIN producto p ON p.fabricante_id = f.id
+WHERE p.precio = (
+  SELECT MAX(p2.precio) FROM producto p2 WHERE p2.fabricante_id = f.id
+);
+
+SELECT * FROM producto p1
+WHERE precio >= (
+  SELECT AVG(p2.precio) FROM producto p2 WHERE p2.fabricante_id = p1.fabricante_id
+);
+
+SELECT nombre FROM producto
+WHERE precio = (
+  SELECT MAX(precio) FROM producto WHERE fabricante_id = (
+    SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+  )
+) AND fabricante_id = (
+  SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+);
+
+-- 1.1.8
+SELECT nombre FROM fabricante
+WHERE id IN (
+  SELECT fabricante_id FROM producto
+  GROUP BY fabricante_id
+  HAVING COUNT(*) = (
+    SELECT COUNT(*) FROM producto
+    WHERE fabricante_id = (
+      SELECT id FROM fabricante WHERE nombre = 'Lenovo'
+    )
+  )
+);
